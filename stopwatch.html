@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Stopwatch</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .stopwatch {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 300px;
+    }
+
+    .time-display {
+      font-size: 48px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .controls button {
+      font-size: 16px;
+      padding: 10px 16px;
+      margin: 6px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+    }
+
+    .start { background-color: #28a745; color: white; }
+    .pause { background-color: #ffc107; color: black; }
+    .reset { background-color: #dc3545; color: white; }
+    .lap { background-color: #007bff; color: white; }
+
+    .controls button:hover {
+      opacity: 0.9;
+    }
+
+    .laps {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .lap-time {
+      background: #e9ecef;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 4px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>⏱️ Stopwatch</h1>
+  <div class="stopwatch">
+    <div class="time-display" id="display">00:00:00.000</div>
+
+    <div class="controls">
+      <button class="start" onclick="start()">Start</button>
+      <button class="pause" onclick="pause()">Pause</button>
+      <button class="reset" onclick="reset()">Reset</button>
+      <button class="lap" onclick="recordLap()">Lap</button>
+    </div>
+
+    <div class="laps" id="laps"></div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+    let isRunning = false;
+
+    const display = document.getElementById('display');
+    const lapsContainer = document.getElementById('laps');
+
+    function formatTime(ms) {
+      const date = new Date(ms);
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+      const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+      return `${minutes}:${seconds}.${milliseconds}`;
+    }
+
+    function updateDisplay() {
+      display.textContent = formatTime(elapsedTime);
+    }
+
+    function start() {
+      if (isRunning) return;
+      isRunning = true;
+      startTime = Date.now() - elapsedTime;
+      timerInterval = setInterval(() => {
+        elapsedTime = Date.now() - startTime;
+        updateDisplay();
+      }, 10);
+    }
+
+    function pause() {
+      if (!isRunning) return;
+      isRunning = false;
+      clearInterval(timerInterval);
+    }
+
+    function reset() {
+      pause();
+      elapsedTime = 0;
+      updateDisplay();
+      lapsContainer.innerHTML = '';
+    }
+
+    function recordLap() {
+      if (!isRunning) return;
+      const lapTime = formatTime(elapsedTime);
+      const lapElement = document.createElement('div');
+      lapElement.className = 'lap-time';
+      lapElement.textContent = `Lap ${lapsContainer.children.length + 1}: ${lapTime}`;
+      lapsContainer.prepend(lapElement);
+    }
+
+    // Initialize
+    updateDisplay();
+  </script>
+
+</body>
+</html>
